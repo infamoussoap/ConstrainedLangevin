@@ -1,3 +1,5 @@
+.idea
+results
 *_results
 .ipynb_checkpoints
 __pycache__
