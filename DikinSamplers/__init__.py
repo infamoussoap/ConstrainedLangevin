@@ -1,2 +1,3 @@
 from .RandomWalk import RandomWalk
-from .Langevin import LangevinSampler
+from .DikinLangevin import DikinLangevin
+from .Langevin import Langevin

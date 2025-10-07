@@ -1,9 +1,11 @@
 import numpy as np
 import torch
 
+from tqdm import tqdm
+
 
 class RandomWalk:
-    def __init__(self, h, A, log_pdf, e=0, include_lazification=True):
+    def __init__(self, h, A, log_pdf, e=0, include_lazification=False):
         self.h = h
         self.log_pdf = log_pdf
         self.A = A
@@ -18,7 +20,10 @@ class RandomWalk:
     def run(self, num_iters):
         history = torch.zeros(num_iters, self.dim)
         A = self.A
-        for i in range(num_iters):
+        num_accept = 0
+        
+        pbar = tqdm(range(num_iters), total=num_iters, ncols=110, mininterval=0.1)
+        for i in pbar:
             if (np.random.rand() > 0.5) and self.include_lazification:
                 history[i] = self.x.detach().clone()
                 continue
@@ -36,11 +41,15 @@ class RandomWalk:
 
             a_temp = self.acceptance_ratio(temp_particle, self.x)
             if torch.rand(1) < a_temp:
+                num_accept += 1
                 with torch.no_grad():
                     self.x[:] = temp_particle
 
             history[i] = self.x.detach().clone()
-        return history.detach().clone().numpy()
+            
+            pbar.set_postfix_str(f"Acc. Prob {num_accept / (i + 1):.3f}")
+            
+        return history.detach().clone().numpy(), num_accept / num_iters
 
     @staticmethod
     def log_proposal(y, x, A, e, h):
