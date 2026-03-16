@@ -1,3 +1,5 @@
+ignore_folder
+*.pdf
 *.csv
 .idea
 results
