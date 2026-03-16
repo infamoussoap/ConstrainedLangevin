@@ -4,7 +4,7 @@ import torch
 import sys
 import os
 
-from DikinSamplers import RandomWalk, Langevin, DikinLangevin
+from DikinSamplers import DikinWalk, Langevin, DikinLangevin
 
 sampler_name = sys.argv[1].lower()
 if len(sys.argv) > 2:
@@ -39,7 +39,7 @@ for i in range(start_index, num_indepent_runs):
     if sampler_name == "dikinlangevin":
         sampler = DikinLangevin(0.04, torch.tensor(A, dtype=torch.float64), log_pdf, beta=1, e=1e-5)
     else:
-        sampler = RandomWalk(0.022, torch.tensor(A, dtype=torch.float64), log_pdf, e=1e-5)
+        sampler = DikinWalk(0.022, torch.tensor(A, dtype=torch.float64), log_pdf, e=1e-5)
         
     history, accept_ratio = sampler.run(num_iters)
     

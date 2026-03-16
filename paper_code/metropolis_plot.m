@@ -1,5 +1,5 @@
 filenames = ["dikinlanvegin_cummean_norm.csv","randomwalk_cummean_norm.csv","langevin_cummean_norm.csv"];
-sampler_names = ["Modified Dikin--Langevin","Dikin Random Walk","MALA"];
+sampler_names = ["Adjusted Dikin--Langevin", "Dikin Random Walk","MALA"];
 expected_value = 0.4446709099274374;
 
 tiledlayout(1,3,'Padding','tight','TileSpacing','tight');
@@ -34,15 +34,16 @@ for i = 1:3
 
     T = length(data); 
 
-    quarters_true = round(T * [0.50 1.00]);       % true iters
+    quarters_true = round(T * [0.25 0.50 0.75 1.00]);       % true iters
     tick_pos = 1 + floor((quarters_true - 1) / step);       % positions in subsampled x
     % tick_pos(tick_pos > numel(x_vals)) = numel(x_vals);     % guard
-    % x_tick_labels = ["$25\,000$", "$50\,000$", "$75\,000$", "$100\,000$"];
-    x_tick_labels = ["50 000", "100 000"];
+    x_tick_labels = ["$2.5\times 10^4$", "5e4", "7.5e4", "1e5"];
+    % x_tick_labels = ["5e4", "1e5"];
     set(ax(i), 'XTick', tick_pos, ...
                'XTickLabel', x_tick_labels, ... % add thousands separator
-               'fontsize', 12);
-               % 'TickLabelInterpreter','latex', 'fontsize', 12);
+               'TickLabelInterpreter','latex', 'fontsize', 12);
+               %'fontsize', 12,
+               
     xlim([0, length(med)]);
 
     xlabel(ax(i), 'Iteration', 'FontSize', 18, 'Interpreter','latex');

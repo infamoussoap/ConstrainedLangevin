@@ -4,7 +4,9 @@ import torch
 import sys
 import os
 
-from DikinSamplers import RandomWalk, Langevin, DikinLangevin
+sys.path.append("..")
+
+from DikinSamplers import DikinWalk, Langevin, DikinLangevin
 
 sampler_name = sys.argv[1].lower()
 
@@ -14,6 +16,9 @@ A = np.concatenate([np.eye(d), -np.eye(d)], axis=0)
 v = 10 ** np.linspace(-2, 0, d)[::-1]
 v = np.concatenate([v, v])
 A /= v[:, None]
+
+A_torch = torch.tensor(A, dtype=torch.float64)
+b_torch = torch.ones(len(A), dtype=torch.float64)
 
 v_tensor = torch.tensor(v[:d], dtype=torch.float64)
 x0 = (torch.zeros(d, dtype=torch.float64) + 0.5) * v_tensor
@@ -26,7 +31,7 @@ log_pdf = lambda x: -0.5 * torch.linalg.norm((x - x0) / v_scale, axis=-1) ** 2
 
 # Run Samplers
 num_iters = 100_000
-num_indepent_runs = 200
+num_indepent_runs = 50
 
 for i in range(num_indepent_runs):
     torch.manual_seed(len(sampler_name) + i)
@@ -38,11 +43,11 @@ for i in range(num_indepent_runs):
         continue
 
     if sampler_name == "randomwalk":
-        sampler = RandomWalk(0.0045, torch.tensor(A, dtype=torch.float64), log_pdf, e=1e-5)
+        sampler = DikinWalk(0.0045, A_torch, b_torch, log_pdf, e=1e-5)
     elif sampler_name == "langevin":
-        sampler = Langevin(4e-7, torch.tensor(A, dtype=torch.float64), log_pdf)
+        sampler = Langevin(4e-7, A_torch, b_torch, log_pdf)
     elif sampler_name == "dikinlangevin":
-        sampler = DikinLangevin(0.018, torch.tensor(A, dtype=torch.float64), log_pdf, e=1e-5)
+        sampler = DikinLangevin(0.02, A_torch, b_torch, log_pdf, e=1e-5, use_div=True)
     else:
         raise ValueError(f"Sampler name {sampler_name} is not defined. Try one of randomwalk, langevin, dikinlangevin")
 
