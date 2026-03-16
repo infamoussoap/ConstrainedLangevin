@@ -1,3 +1,4 @@
+*.csv
 .idea
 results
 *_results
